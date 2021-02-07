@@ -37,7 +37,7 @@ namespace APICore.Class
                     message = "Forbidden";
                     break;
                 case 404:
-                    message = "Not Found";
+                    message = "No record found";
                     break;
                 case 409:
                     message = "Duplicate";

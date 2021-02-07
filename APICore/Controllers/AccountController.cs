@@ -40,14 +40,7 @@ namespace APICore.Controllers
                 rescode.code = response == null ? 404 : 200;
                 rescode.message = ResponseMessage.StandardMessage(response == null ? 404 : 200);
                 rescode.data = response;
-                if (response == null)
-                {
-                    return NotFound(JsonConvert.SerializeObject(rescode));
-                }
-                else
-                {
-                    return Ok(JsonConvert.SerializeObject(rescode));
-                }
+                return Ok(JsonConvert.SerializeObject(rescode));
             }
             catch (Exception ex)
             {
@@ -69,14 +62,7 @@ namespace APICore.Controllers
                 rescode.code = response == null ? 404 : 200;
                 rescode.message = ResponseMessage.StandardMessage(response == null ? 404 : 200);
                 rescode.data = response;
-                if (response == null)
-                {
-                    return NotFound(JsonConvert.SerializeObject(rescode));
-                }
-                else
-                {
-                    return Ok(JsonConvert.SerializeObject(rescode));
-                }
+                return Ok(JsonConvert.SerializeObject(rescode));
             }
             catch (Exception ex)
             {

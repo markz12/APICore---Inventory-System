@@ -31,7 +31,7 @@ namespace APICore.Controllers
 
         #region Products Action
         [HttpGet(nameof(GetProducts))]
-        public async Task<IActionResult> GetProducts(string search, string role,string createdby) // status for admin viewing all, in-stock, out-of-stock,deleted, role - admin,user
+        public async Task<IActionResult> GetProducts(string search, string role, string createdby) // status for admin viewing all, in-stock, out-of-stock,deleted, role - admin,user
         {
             ResponseCode<dynamic> rescode = new ResponseCode<dynamic>();
             try
@@ -44,15 +44,7 @@ namespace APICore.Controllers
                 rescode.code = response == null ? 404 : 200;
                 rescode.message = ResponseMessage.StandardMessage(response == null ? 404 : 200);
                 rescode.data = response;
-                if (response == null)
-                {
-                    return NotFound(JsonConvert.SerializeObject(rescode));
-                }
-                else
-                {
-                    return Ok(JsonConvert.SerializeObject(rescode));
-                }
-                
+                return Ok(JsonConvert.SerializeObject(rescode));
             }
             catch (Exception ex)
             {
@@ -147,7 +139,7 @@ namespace APICore.Controllers
 
 
         [HttpPost(nameof(UpdateProductQuantity))]
-        public async Task<IActionResult> UpdateProductQuantity(int pid, int quantity,string action, string updatedby) //action represent as increment & decrement
+        public async Task<IActionResult> UpdateProductQuantity(int pid, int quantity, string action, string updatedby) //action represent as increment & decrement
         {
             ResponseCode<dynamic> rescode = new ResponseCode<dynamic>();
             try
@@ -165,7 +157,7 @@ namespace APICore.Controllers
                 {
                     return Ok(JsonConvert.SerializeObject(rescode));
                 }
-                else if(response == 404)
+                else if (response == 404)
                 {
                     return NotFound(JsonConvert.SerializeObject(rescode));
                 }
@@ -197,14 +189,7 @@ namespace APICore.Controllers
                 rescode.code = response == null ? 404 : 200;
                 rescode.message = ResponseMessage.StandardMessage(response == null ? 404 : 200);
                 rescode.data = response;
-                if (response == null)
-                {
-                    return NotFound(JsonConvert.SerializeObject(rescode));
-                }
-                else
-                {
-                    return Ok(JsonConvert.SerializeObject(rescode));
-                }
+                return Ok(JsonConvert.SerializeObject(rescode));
             }
             catch (Exception ex)
             {
@@ -232,13 +217,9 @@ namespace APICore.Controllers
                 {
                     return Ok(JsonConvert.SerializeObject(rescode));
                 }
-                else if(response == 409)
+                else if (response == 409)
                 {
                     return Conflict(JsonConvert.SerializeObject(rescode));
-                }
-                else if(response == 401)
-                {
-                    return Unauthorized(JsonConvert.SerializeObject(rescode));
                 }
                 else
                 {
@@ -291,6 +272,94 @@ namespace APICore.Controllers
         #endregion
 
         #region Categoory
+
+        [HttpGet(nameof(GetCategories))]
+        public async Task<IActionResult> GetCategories(string status)
+        {
+            ResponseCode<dynamic> rescode = new ResponseCode<dynamic>();
+            try
+            {
+                var param = new DynamicParameters();
+                param.Add("status", status, DbType.String);
+                var response = await Task.FromResult(_dapper.GetAll<dynamic>("[dbo].[GetCategories]", param, commandType: CommandType.StoredProcedure));
+                rescode.code = response == null ? 404 : 200;
+                rescode.message = ResponseMessage.StandardMessage(response == null ? 404 : 200);
+                rescode.data = response;
+                return Ok(JsonConvert.SerializeObject(rescode));
+            }
+            catch (Exception ex)
+            {
+                rescode.code = 500;
+                rescode.message = ex.Message;
+                return StatusCode(500, JsonConvert.SerializeObject(rescode));
+            }
+        }
+
+        [HttpPost(nameof(AddCategory))]
+        public async Task<IActionResult> AddCategory(string name, string createdby)
+        {
+            ResponseCode<dynamic> rescode = new ResponseCode<dynamic>();
+            try
+            {
+                var param = new DynamicParameters();
+                param.Add("name", name, DbType.String);
+                param.Add("createdby", createdby, DbType.String);
+                param.Add("return", DbType.Int32, direction: ParameterDirection.Output);
+                var response = await Task.FromResult(_dapper.GeneralCrud<int>("[dbo].[AddCategory]", param, commandType: CommandType.StoredProcedure));
+                rescode.code = response;
+                rescode.message = ResponseMessage.StandardMessage(response);
+                if (response == 200)
+                {
+                    return Ok(JsonConvert.SerializeObject(rescode));
+                }
+                else if (response == 409)
+                {
+                    return Conflict(JsonConvert.SerializeObject(rescode));
+                }
+                else
+                {
+                    return BadRequest(JsonConvert.SerializeObject(rescode));
+                }
+            }
+            catch (Exception ex)
+            {
+                rescode.code = 500;
+                rescode.message = ex.Message;
+                return StatusCode(500, JsonConvert.SerializeObject(rescode));
+            }
+        }
+
+        [HttpPost(nameof(UpdateCategory))]
+        public async Task<IActionResult> UpdateCategory(int categoryid, string name, string status, string updatedby)
+        {
+            ResponseCode<dynamic> rescode = new ResponseCode<dynamic>();
+            try
+            {
+                var param = new DynamicParameters();
+                param.Add("categoryid", categoryid, DbType.Int32);
+                param.Add("name", name, DbType.String);
+                param.Add("status", status, DbType.String);
+                param.Add("updatedby", updatedby, DbType.String);
+                param.Add("return", DbType.Int32, direction: ParameterDirection.Output);
+                var response = await Task.FromResult(_dapper.GeneralCrud<int>("[dbo].[UpdateCategory]", param, commandType: CommandType.StoredProcedure));
+                rescode.code = response;
+                rescode.message = ResponseMessage.StandardMessage(response);
+                if (response == 200)
+                {
+                    return Ok(JsonConvert.SerializeObject(rescode));
+                }
+                else
+                {
+                    return BadRequest(JsonConvert.SerializeObject(rescode));
+                }
+            }
+            catch (Exception ex)
+            {
+                rescode.code = 500;
+                rescode.message = ex.Message;
+                return StatusCode(500, JsonConvert.SerializeObject(rescode));
+            }
+        }
         #endregion
     }
 }
