@@ -137,7 +137,7 @@ namespace APICore.Controllers
                 param.Add("status", user.user.status, DbType.String);
                 param.Add("image", user.UserImg.image, DbType.String);
                 param.Add("return", dbType: DbType.Int32, direction: ParameterDirection.Output);
-                var response = await Task.FromResult(_dapper.GeneralCrud<int>("[dbo].[UpdateUserDetails]", param, commandType: CommandType.StoredProcedure));\
+                var response = await Task.FromResult(_dapper.GeneralCrud<int>("[dbo].[UpdateUserDetails]", param, commandType: CommandType.StoredProcedure));
                 rescode.code = response;
                 rescode.message = ResponseMessage.StandardMessage(response);
                 if (response == 200)
