@@ -31,8 +31,16 @@ namespace APICore.Services
 
         public T Get<T>(string query, DynamicParameters param, CommandType commandType = CommandType.StoredProcedure)
         {
-            using IDbConnection db = new SqlConnection(_config.GetConnectionString(ConnectionString));
-            return db.Query<T>(query, param, commandType: commandType).FirstOrDefault();
+            try
+            {
+                using IDbConnection db = new SqlConnection(_config.GetConnectionString(ConnectionString));
+                return db.Query<T>(query, param, commandType: commandType).FirstOrDefault();
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
         }
 
         public List<T> GetAll<T>(string query,DynamicParameters param, CommandType commandType = CommandType.StoredProcedure)

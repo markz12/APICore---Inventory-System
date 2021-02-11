@@ -180,14 +180,14 @@ namespace APICore.Controllers
         [HttpGet(nameof(GetBrand))]
         public async Task<IActionResult> GetBrand(string status) //Get active/inactive status
         {
-            ResponseCode<dynamic> rescode = new ResponseCode<dynamic>();
+            ResponseCode<brands> rescode = new ResponseCode<brands>();
             try
             {
                 var param = new DynamicParameters();
                 param.Add("status", status, DbType.String);
-                var response = await Task.FromResult(_dapper.GetAll<dynamic>("[dbo].[GetBrands]", param, commandType: CommandType.StoredProcedure));
-                rescode.code = response == null ? 404 : 200;
-                rescode.message = ResponseMessage.StandardMessage(response == null ? 404 : 200);
+                var response = await Task.FromResult(_dapper.GetAll<brands>("[dbo].[GetBrands]", param, commandType: CommandType.StoredProcedure));
+                rescode.code = response.Count == 0 ? 404 : 200;
+                rescode.message = ResponseMessage.StandardMessage(response.Count == 0 ? 404 : 200);
                 rescode.data = response;
                 return Ok(JsonConvert.SerializeObject(rescode));
             }
@@ -200,17 +200,16 @@ namespace APICore.Controllers
         }
 
         [HttpPost(nameof(AddBrand))]
-        public async Task<IActionResult> AddBrand(string data)
+        public async Task<IActionResult> AddBrand([FromBody] brands brand)
         {
-            ResponseCode<dynamic> rescode = new ResponseCode<dynamic>();
+            ResponseCode<int> rescode = new ResponseCode<int>();
             try
             {
-                brands brand = JsonConvert.DeserializeObject<brands>(data);
                 var param = new DynamicParameters();
                 param.Add("name", brand.name, DbType.String);
                 param.Add("createdby", brand.createdby, DbType.String);
                 param.Add("return", DbType.Int32, direction: ParameterDirection.Output);
-                var response = await Task.FromResult(_dapper.GeneralCrud<int>("[dbo].[AddBrand]", param, commandType: CommandType.StoredProcedure));
+                int response = await Task.FromResult(_dapper.GeneralCrud<int>("[dbo].[AddBrand]", param, commandType: CommandType.StoredProcedure));
                 rescode.code = response;
                 rescode.message = ResponseMessage.StandardMessage(response);
                 if (response == 200)

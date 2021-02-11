@@ -28,6 +28,30 @@ namespace APICore.Controllers
             return Ok("Hey you are on the wrong side! Keep going!");
         }
 
+        [HttpPost(nameof(ValidateUser))]
+        public async Task<IActionResult> ValidateUser([FromBody] Users user)
+        {
+            ResponseAPI<Users> rescode = new ResponseAPI<Users>();
+            try
+            {
+                var param = new DynamicParameters();
+                param.Add("username", user.username, DbType.String);
+                param.Add("password", user.password, DbType.String);
+                Users response = await Task.FromResult(_dapper.Get<Users>("[dbo].[ValidateUserAccess]", param, commandType: CommandType.StoredProcedure));
+                rescode.code = response == null ? 404 : 200;
+                rescode.message = ResponseMessage.StandardMessage(response == null ? 404 : 200);
+                rescode.data = response;
+                return Ok(JsonConvert.SerializeObject(rescode));
+            }
+            catch (Exception ex)
+            {
+                rescode.code = 500;
+                rescode.message = ex.Message;
+                rescode.data = null;
+                return StatusCode(500, JsonConvert.SerializeObject(rescode));
+            }
+        }
+
         [HttpGet(nameof(GetSpecificUser))]
         public async Task<IActionResult> GetSpecificUser(string username)
         {
@@ -78,21 +102,21 @@ namespace APICore.Controllers
             ResponseCode<dynamic> rescode = new ResponseCode<dynamic>();
             try
             {
-                UserDetails user = JsonConvert.DeserializeObject<UserDetails>(data);
-                if (user.user == null)
+                Users user = JsonConvert.DeserializeObject<Users>(data);
+                if (user == null)
                 {
                     return BadRequest(ResponseMessage.StandardMessage(300));
                 }
                 else
                 {
                     var param = new DynamicParameters();
-                    param.Add("fullname", user.user.fullname, DbType.String);
-                    param.Add("contact", user.user.contact, DbType.String);
-                    param.Add("email", user.user.email, DbType.String);
-                    param.Add("username", user.user.username, DbType.String);
-                    param.Add("password", user.user.password, DbType.String);
-                    param.Add("roles", user.user.roles, DbType.String);
-                    param.Add("image", user.UserImg.image, DbType.String);
+                    param.Add("fullname", user.fullname, DbType.String);
+                    param.Add("contact", user.contact, DbType.String);
+                    param.Add("email", user.email, DbType.String);
+                    param.Add("username", user.username, DbType.String);
+                    param.Add("password", user.password, DbType.String);
+                    param.Add("roles", user.roles, DbType.String);
+                    param.Add("image", user.image, DbType.String);
                     param.Add("return", dbType: DbType.Int32, direction: ParameterDirection.Output);
                     var response = await Task.FromResult(_dapper.GeneralCrud<int>("[dbo].[addUserData]", param, commandType: CommandType.StoredProcedure));
                     rescode.code = response;
@@ -126,16 +150,16 @@ namespace APICore.Controllers
             ResponseCode<dynamic> rescode = new ResponseCode<dynamic>();
             try
             {
-                UserDetails user = JsonConvert.DeserializeObject<UserDetails>(data);
+                Users user = JsonConvert.DeserializeObject<Users>(data);
                 var param = new DynamicParameters();
-                param.Add("uid", user.user.uid, DbType.Int32);
-                param.Add("fullname", user.user.fullname, DbType.String);
-                param.Add("contact", user.user.contact, DbType.String);
-                param.Add("email", user.user.email, DbType.String);
-                param.Add("username", user.user.username, DbType.String);
-                param.Add("password", user.user.password, DbType.String);
-                param.Add("status", user.user.status, DbType.String);
-                param.Add("image", user.UserImg.image, DbType.String);
+                param.Add("uid", user.uid, DbType.Int32);
+                param.Add("fullname", user.fullname, DbType.String);
+                param.Add("contact", user.contact, DbType.String);
+                param.Add("email", user.email, DbType.String);
+                param.Add("username", user.username, DbType.String);
+                param.Add("password", user.password, DbType.String);
+                param.Add("status", user.status, DbType.String);
+                param.Add("image", user.image, DbType.String);
                 param.Add("return", dbType: DbType.Int32, direction: ParameterDirection.Output);
                 var response = await Task.FromResult(_dapper.GeneralCrud<int>("[dbo].[UpdateUserDetails]", param, commandType: CommandType.StoredProcedure));
                 rescode.code = response;
