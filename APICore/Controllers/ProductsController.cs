@@ -202,7 +202,7 @@ namespace APICore.Controllers
         [HttpPost(nameof(AddBrand))]
         public async Task<IActionResult> AddBrand([FromBody] brands brand)
         {
-            ResponseCode<int> rescode = new ResponseCode<int>();
+            ResponseAPI<int> rescode = new ResponseAPI<int>();
             try
             {
                 var param = new DynamicParameters();
@@ -212,18 +212,8 @@ namespace APICore.Controllers
                 int response = await Task.FromResult(_dapper.GeneralCrud<int>("[dbo].[AddBrand]", param, commandType: CommandType.StoredProcedure));
                 rescode.code = response;
                 rescode.message = ResponseMessage.StandardMessage(response);
-                if (response == 200)
-                {
-                    return Ok(JsonConvert.SerializeObject(rescode));
-                }
-                else if (response == 409)
-                {
-                    return Conflict(JsonConvert.SerializeObject(rescode));
-                }
-                else
-                {
-                    return BadRequest(JsonConvert.SerializeObject(rescode));
-                }
+                rescode.data = response;
+                return Ok(JsonConvert.SerializeObject(rescode));
             }
             catch (Exception ex)
             {
@@ -275,12 +265,12 @@ namespace APICore.Controllers
         [HttpGet(nameof(GetCategories))]
         public async Task<IActionResult> GetCategories(string status)
         {
-            ResponseCode<dynamic> rescode = new ResponseCode<dynamic>();
+            ResponseCode<categories> rescode = new ResponseCode<categories>();
             try
             {
                 var param = new DynamicParameters();
                 param.Add("status", status, DbType.String);
-                var response = await Task.FromResult(_dapper.GetAll<dynamic>("[dbo].[GetCategories]", param, commandType: CommandType.StoredProcedure));
+                var response = await Task.FromResult(_dapper.GetAll<categories>("[dbo].[GetCategories]", param, commandType: CommandType.StoredProcedure));
                 rescode.code = response == null ? 404 : 200;
                 rescode.message = ResponseMessage.StandardMessage(response == null ? 404 : 200);
                 rescode.data = response;
@@ -295,30 +285,20 @@ namespace APICore.Controllers
         }
 
         [HttpPost(nameof(AddCategory))]
-        public async Task<IActionResult> AddCategory(string name, string createdby)
+        public async Task<IActionResult> AddCategory([FromBody]categories category)
         {
-            ResponseCode<dynamic> rescode = new ResponseCode<dynamic>();
+            ResponseAPI<int> rescode = new ResponseAPI<int>();
             try
             {
                 var param = new DynamicParameters();
-                param.Add("name", name, DbType.String);
-                param.Add("createdby", createdby, DbType.String);
+                param.Add("name", category.name, DbType.String);
+                param.Add("createdby", category.createdby, DbType.String);
                 param.Add("return", DbType.Int32, direction: ParameterDirection.Output);
                 var response = await Task.FromResult(_dapper.GeneralCrud<int>("[dbo].[AddCategory]", param, commandType: CommandType.StoredProcedure));
                 rescode.code = response;
                 rescode.message = ResponseMessage.StandardMessage(response);
-                if (response == 200)
-                {
-                    return Ok(JsonConvert.SerializeObject(rescode));
-                }
-                else if (response == 409)
-                {
-                    return Conflict(JsonConvert.SerializeObject(rescode));
-                }
-                else
-                {
-                    return BadRequest(JsonConvert.SerializeObject(rescode));
-                }
+                rescode.data = response;
+                return Ok(JsonConvert.SerializeObject(rescode));
             }
             catch (Exception ex)
             {
@@ -360,5 +340,7 @@ namespace APICore.Controllers
             }
         }
         #endregion
+
+
     }
 }
