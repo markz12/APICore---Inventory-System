@@ -341,6 +341,28 @@ namespace APICore.Controllers
         }
         #endregion
 
+        #region fetchBrandCategory
+        [HttpGet(nameof(FetchBrandCategory))]
+        public async Task<IActionResult> FetchBrandCategory()
+        {
+            ResponseCode<brandCategory> rescode = new ResponseCode<brandCategory>();
+            try
+            {
+                var param = new DynamicParameters();
+                var response = await Task.FromResult(_dapper.GetAll<brandCategory>("[dbo].[FetchBrandCategory]",param, commandType: CommandType.StoredProcedure));
+                rescode.code = response.Count == 0 ? 404 : 200;
+                rescode.message = ResponseMessage.StandardMessage(response.Count == 0 ? 404 : 200);
+                rescode.data = response;
+                return Ok(JsonConvert.SerializeObject(rescode));
+            }
+            catch (Exception ex)
+            {
+                rescode.code = 500;
+                rescode.message = ex.Message;
+                return StatusCode(500, JsonConvert.SerializeObject(rescode));
+            }
+        }
+        #endregion
 
     }
 }

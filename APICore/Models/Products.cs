@@ -59,4 +59,9 @@ namespace APICore.Models
 
     }
 
+    public class brandCategory
+    {
+        public string Brand { get; set; }
+        public string Category { get; set; }
+    }
 }
